@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ["admin", "participant", "judge"],
         default: "participant"
-    }
+    },
+    resetOTP: String,
+    resetOTPExpiry: Date
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);
