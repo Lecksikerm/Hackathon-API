@@ -35,7 +35,6 @@ exports.getHackathons = async (req, res) => {
   });
 };
 
-
 exports.registerTeam = async (req, res) => {
     const { teamId } = req.body;
     const hackathon = await Hackathon.findById(req.params.id);
