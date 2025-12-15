@@ -2,12 +2,12 @@ const Hackathon = require("../models/Hackathon");
 const Team = require("../models/Team");
 
 exports.createHackathon = async (req, res) => {
-    const hackathon = await Hackathon.create({
-        ...req.body,
-        createdBy: req.user.id
-    });
+  const hackathon = await Hackathon.create({
+    ...req.body,
+    createdBy: req.user.id
+  });
 
-    res.status(201).json(hackathon);
+  res.status(201).json(hackathon);
 };
 
 exports.getHackathons = async (req, res) => {
@@ -35,36 +35,58 @@ exports.getHackathons = async (req, res) => {
   });
 };
 
-exports.registerTeam = async (req, res) => {
-    const { teamId } = req.body;
+exports.getHackathonById = async (req, res) => {
+  try {
     const hackathon = await Hackathon.findById(req.params.id);
-    const team = await Team.findById(teamId);
 
-    if (!hackathon || !team) {
-        return res.status(404).json({ message: "Hackathon or Team not found" });
+    if (!hackathon) {
+      return res.status(404).json({
+        message: "Hackathon not found",
+      });
     }
 
-    if (hackathon.registeredTeams.includes(teamId)) {
-        return res.status(400).json({ message: "Team already registered" });
-    }
+    res.status(200).json({
+      success: true,
+      data: hackathon,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
 
-    if (team.leader.toString() !== req.user.id) {
-        return res.status(403).json({ message: "Only team leader can register team" });
-    }
 
-    hackathon.registeredTeams.push(teamId);
-    await hackathon.save();
+exports.registerTeam = async (req, res) => {
+  const { teamId } = req.body;
+  const hackathon = await Hackathon.findById(req.params.id);
+  const team = await Team.findById(teamId);
 
-    res.json({ message: "Team registered successfully" });
+  if (!hackathon || !team) {
+    return res.status(404).json({ message: "Hackathon or Team not found" });
+  }
+
+  if (hackathon.registeredTeams.includes(teamId)) {
+    return res.status(400).json({ message: "Team already registered" });
+  }
+
+  if (team.leader.toString() !== req.user.id) {
+    return res.status(403).json({ message: "Only team leader can register team" });
+  }
+
+  hackathon.registeredTeams.push(teamId);
+  await hackathon.save();
+
+  res.json({ message: "Team registered successfully" });
 };
 
 exports.getRegisteredTeams = async (req, res) => {
-    const hackathon = await Hackathon.findById(req.params.id)
-        .populate("registeredTeams");
+  const hackathon = await Hackathon.findById(req.params.id)
+    .populate("registeredTeams");
 
-    if (!hackathon) {
-        return res.status(404).json({ message: "Hackathon not found" });
-    }
+  if (!hackathon) {
+    return res.status(404).json({ message: "Hackathon not found" });
+  }
 
-    res.json(hackathon.registeredTeams);
+  res.json(hackathon.registeredTeams);
 };
