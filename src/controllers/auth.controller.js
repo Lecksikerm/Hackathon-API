@@ -56,39 +56,39 @@ exports.login = async (req, res) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        user.resetOTP = crypto.createHash("sha256").update(otp).digest("hex");
-        user.resetOTPExpiry = Date.now() + 10 * 60 * 1000;
-
-        await user.save();
-
-        try {
-            await sendEmail({
-                to: email,
-                subject: "Password Reset OTP",
-                text: `Your password reset OTP is ${otp}. It expires in 10 minutes.`
-            });
-        } catch (emailErr) {
-            console.error("Email error:", emailErr);
-
-        }
-
-        return res.json({ message: "OTP sent to email" });
-
-    } catch (err) {
-        console.error("Forgot password error:", err);
-        return res.status(500).json({ message: "Server error" });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetOTP = crypto.createHash("sha256").update(otp).digest("hex");
+    user.resetOTPExpiry = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    // Respond immediately
+    res.json({ message: "OTP sent to email" });
+
+    // Send email AFTER response
+    sendEmail({
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your password reset OTP is ${otp}. It expires in 10 minutes.`
+    }).catch(err => {
+      console.error("Email failed:", err);
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 exports.resetPassword = async (req, res) => {
     const { email, otp, newPassword } = req.body;
