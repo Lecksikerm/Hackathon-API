@@ -86,6 +86,7 @@ JWT_SECRET=your_jwt_secret
 EMAIL_HOST=smtp_provider
 EMAIL_USER=email_address
 EMAIL_PASS=email_password
+FRONTEND_URL=http://localhost:3000
 ```
 
 ---
@@ -128,9 +129,11 @@ http://localhost:8000
 ### Auth
 
 * `POST /api/v1/auth/register`
+* `GET /api/v1/auth/verify-email`
 * `POST /api/v1/auth/login`
 * `POST /api/v1/auth/forgot-password`
 * `POST /api/v1/auth/reset-password`
+* `POST /api/v1/auth/resend-verification`
 
 ### Teams
 
