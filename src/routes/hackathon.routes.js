@@ -11,10 +11,16 @@ const {
 
 const router = express.Router();
 
+router.get("/", getHackathons);
+router.get("/:id", getHackathonById);
+
+// Admin creates hackathon
 router.post("/", auth, role("admin"), createHackathon);
-router.get("/", auth, getHackathons);
-router.get("/:id", auth, getHackathonById);
+
+// Authenticated user registers team
 router.post("/:id/register", auth, registerTeam);
-router.get("/:id/teams", auth, getRegisteredTeams);
+
+// Admin views registered teams
+router.get("/:id/teams", auth, role("admin"), getRegisteredTeams);
 
 module.exports = router;
